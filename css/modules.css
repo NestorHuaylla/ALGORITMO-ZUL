@@ -1,0 +1,101 @@
+/* Modulo A - Controles */
+.controls-card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.control-group input[type="number"] {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 0.6rem;
+    border-radius: var(--radius);
+    width: 120px;
+    font-family: var(--font-mono);
+}
+
+.control-group input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.db-status {
+    background-color: var(--bg-hover);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.db-status span {
+    color: var(--text-main);
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+/* Modulo A - Tabla */
+.data-table-container {
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th, .data-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.data-table td {
+    font-size: 0.95rem;
+}
+
+.data-table td:first-child, .data-table td:last-child {
+    font-family: var(--font-mono);
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#page-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
