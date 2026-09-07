@@ -3,29 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algoritmos Store Manager</title>
+    <meta name="description" content="Visualizador interactivo de algoritmos de ordenamiento y búsqueda. Simulación 3D, análisis de complejidad y código C++ en vivo.">
+    <title>AlgoManager — Visualizador de Algoritmos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <link rel="stylesheet" href="css/modules.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/modules.css?v=5">
 </head>
 <body>
+    <!-- ═══════ HEADER ═══════ -->
     <header class="app-header">
         <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            <h1>Store AlgoManager</h1>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <h1>AlgoManager</h1>
         </div>
         <nav class="tabs">
-            <button class="tab-btn active" data-target="module-a">📦 Datos</button>
-            <button class="tab-btn" data-target="module-b">✨ Simulación</button>
-            <button class="tab-btn" data-target="module-c">📊 Rendimiento</button>
-            <button class="tab-btn" data-target="module-d">💻 Código en Vivo</button>
+            <button class="tab-btn active" data-target="module-a" id="tab-data">📦 Datos</button>
+            <button class="tab-btn" data-target="module-b" id="tab-sim">✨ Simulación</button>
+            <button class="tab-btn" data-target="module-c" id="tab-complexity">📊 Complejidad</button>
+            <button class="tab-btn" data-target="module-d" id="tab-code">💻 Código C++</button>
         </nav>
     </header>
 
+    <!-- ═══════ GLOBAL ALGORITHM SELECTOR ═══════ -->
+    <div class="algo-selector-bar" id="algo-selector-bar">
+        <span class="label">Algoritmo</span>
+        <div class="algo-card active" data-algo="merge" id="algo-card-merge">
+            <span class="algo-icon">🔀</span>
+            <span class="algo-name">Merge Sort</span>
+            <span class="algo-complexity">O(n log n)</span>
+        </div>
+        <div class="algo-card" data-algo="quick" id="algo-card-quick">
+            <span class="algo-icon">⚡</span>
+            <span class="algo-name">Quick Sort</span>
+            <span class="algo-complexity">O(n log n)</span>
+        </div>
+        <div class="algo-card" data-algo="bubble" id="algo-card-bubble">
+            <span class="algo-icon">🫧</span>
+            <span class="algo-name">Bubble Sort</span>
+            <span class="algo-complexity">O(n²)</span>
+        </div>
+        <div class="algo-card" data-algo="binary" id="algo-card-binary">
+            <span class="algo-icon">🔍</span>
+            <span class="algo-name">Binary Search</span>
+            <span class="algo-complexity">O(log n)</span>
+        </div>
+    </div>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
     <main class="app-content">
-        <!-- Módulo A: Gestión de datos -->
+
+        <!-- ═══════ MODULE A: Gestión de datos ═══════ -->
         <section id="module-a" class="module-section active">
             <div class="module-header">
                 <h2>Gestión de Inventario</h2>
@@ -34,10 +63,10 @@
             
             <div class="controls-card">
                 <div class="control-group">
-                    <label for="generate-count">Cantidad a generar:</label>
+                    <label for="generate-count">Cantidad:</label>
                     <input type="number" id="generate-count" value="1000" min="10" max="1000000" step="100">
                     <button id="btn-generate" class="btn primary">Generar Datos</button>
-                    <button id="btn-clear" class="btn danger">Vaciar Base de Datos</button>
+                    <button id="btn-clear" class="btn danger">Vaciar DB</button>
                 </div>
                 <div class="db-status">
                     Total en DB: <span id="total-records">0</span> productos
@@ -59,133 +88,177 @@
                     </tbody>
                 </table>
                 <div class="pagination">
-                    <button id="btn-prev-page" class="btn secondary" disabled>Anterior</button>
+                    <button id="btn-prev-page" class="btn secondary" disabled>← Anterior</button>
                     <span id="page-info">Página 1</span>
-                    <button id="btn-next-page" class="btn secondary" disabled>Siguiente</button>
+                    <button id="btn-next-page" class="btn secondary" disabled>Siguiente →</button>
                 </div>
             </div>
         </section>
 
-        <!-- Módulo B: Simulación -->
+        <!-- ═══════ MODULE B: Simulación ═══════ -->
         <section id="module-b" class="module-section">
-            <div class="controls-bar" style="background: var(--bg-card); padding: 1rem; border-radius: var(--radius); display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <label style="color: var(--text-muted); font-weight: 500;">Algoritmo:</label>
-                    <select id="algo-select" class="input-field" style="width: auto;">
-                        <option value="merge">Merge Sort</option>
-                        <option value="quick">Quick Sort</option>
-                        <option value="bubble">Bubble Sort</option>
-                        <option value="binary">Binary Search</option>
-                    </select>
+            <div class="module-header">
+                <h2>Simulación 3D</h2>
+                <p>Visualiza el algoritmo seleccionado en acción con barras 3D interactivas.</p>
+            </div>
 
+            <div class="sim-controls-bar">
+                <div class="control-section">
+                    <label>N (Elementos):</label>
+                    <input type="number" id="sim-count" class="input-field" value="50" min="10" max="200" style="width: 80px;">
+                    
                     <!-- Input para búsqueda binaria (oculto por defecto) -->
                     <div id="search-target-container" style="display: none; align-items: center; gap: 0.5rem;">
-                        <label style="color: var(--text-muted); font-weight: 500;">Buscar:</label>
+                        <label>Buscar:</label>
                         <input type="number" id="sim-target" class="input-field" placeholder="Target..." style="width: 100px;">
                     </div>
+
+                    <button id="btn-load-sim" class="btn primary">Cargar Datos</button>
                 </div>
 
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <label style="color: var(--text-muted); font-weight: 500;">N (Elementos):</label>
-                    <input type="number" id="sim-count" class="input-field" value="50" min="10" max="1000" style="width: 80px;">
-                    <button id="btn-load-sim" class="btn btn-primary">Cargar Datos</button>
-                </div>
-
-                <div style="display: flex; gap: 0.5rem; flex-grow: 1; justify-content: flex-end; align-items: center;">
-                    <button id="btn-play" class="btn btn-secondary" disabled>▶ Reproducir</button>
-                    <button id="btn-pause" class="btn btn-secondary" disabled>⏸ Pausar</button>
-                    <button id="btn-step" class="btn btn-secondary" disabled>⏭ Paso a Paso</button>
-                    <label style="color: var(--text-muted); margin-left: 1rem;">Velocidad:</label>
+                <div class="control-section">
+                    <button id="btn-play" class="btn secondary" disabled>▶ Play</button>
+                    <button id="btn-pause" class="btn secondary" disabled>⏸ Pausa</button>
+                    <button id="btn-step" class="btn secondary" disabled>⏭ Paso</button>
+                    <label style="margin-left: 0.5rem;">Velocidad:</label>
                     <input type="range" id="sim-speed" min="1" max="100" value="50" style="width: 100px;">
                 </div>
             </div>
 
-            <div class="canvas-container" id="canvas-container" style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 0; overflow: hidden; display: flex; justify-content: center; height: 500px; position: relative;">
-                <!-- Three.js will inject its canvas here -->
-                <div style="position: absolute; top: 10px; left: 10px; color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-mono); pointer-events: none; z-index: 10;">
-                    Arrastra el ratón para rotar la vista 3D. Rueda para zoom.
-                </div>
+            <!-- Progress bar -->
+            <div class="progress-bar" id="sim-progress">
+                <div class="fill" id="sim-progress-fill"></div>
+            </div>
+
+            <div class="canvas-container" id="canvas-container">
+                <span class="hint-text">Arrastra para rotar · Rueda para zoom</span>
             </div>
         </section>
 
+        <!-- ═══════ MODULE C: Complejidad ═══════ -->
         <section id="module-c" class="module-section">
             <div class="module-header">
                 <h2>Análisis de Complejidad</h2>
                 <p>Compara teóricamente y en la práctica el rendimiento de los algoritmos.</p>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="complexity-grid">
                 <!-- Merge Sort -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <h3 style="color: var(--primary); margin-bottom: 1rem;">Merge Sort</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">O(n log n)</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">Pasos Totales:</p>
-                        <p style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--primary);" id="lbl-merge-ops">-</p>
-                    </div>
+                <div class="complexity-card active" data-algo="merge" id="card-merge">
+                    <div class="card-title">Merge Sort</div>
+                    <div class="card-complexity">O(n log n)</div>
+                    <div class="card-divider"></div>
+                    <div class="card-label">Pasos Totales</div>
+                    <div class="card-value" id="lbl-merge-ops" style="color: var(--accent-violet);">—</div>
                 </div>
                 
                 <!-- Quick Sort -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <h3 style="color: var(--secondary); margin-bottom: 1rem;">Quick Sort</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">O(n log n) avg</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">Pasos Totales:</p>
-                        <p style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--secondary);" id="lbl-quick-ops">-</p>
-                    </div>
+                <div class="complexity-card" data-algo="quick" id="card-quick">
+                    <div class="card-title">Quick Sort</div>
+                    <div class="card-complexity">O(n log n) avg</div>
+                    <div class="card-divider"></div>
+                    <div class="card-label">Pasos Totales</div>
+                    <div class="card-value" id="lbl-quick-ops" style="color: var(--accent-cyan);">—</div>
                 </div>
 
                 <!-- Bubble Sort -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <h3 style="color: var(--danger); margin-bottom: 1rem;">Bubble Sort</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">O(n²)</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">Pasos Totales:</p>
-                        <p style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--danger);" id="lbl-bubble-ops">-</p>
-                    </div>
+                <div class="complexity-card" data-algo="bubble" id="card-bubble">
+                    <div class="card-title">Bubble Sort</div>
+                    <div class="card-complexity">O(n²)</div>
+                    <div class="card-divider"></div>
+                    <div class="card-label">Pasos Totales</div>
+                    <div class="card-value" id="lbl-bubble-ops" style="color: var(--accent-rose);">—</div>
                 </div>
 
                 <!-- Binary Search -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <h3 style="color: var(--success); margin-bottom: 1rem;">Binary Search</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">O(log n)</p>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">Pasos Totales:</p>
-                        <p style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--success);" id="lbl-binary-ops">-</p>
+                <div class="complexity-card" data-algo="binary" id="card-binary">
+                    <div class="card-title">Binary Search</div>
+                    <div class="card-complexity">O(log n)</div>
+                    <div class="card-divider"></div>
+                    <div class="card-label">Pasos Totales</div>
+                    <div class="card-value" id="lbl-binary-ops" style="color: var(--accent-emerald);">—</div>
+                </div>
+            </div>
+
+            <!-- ── Cartesian Plane Graph ── -->
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">📐 Funciones de Complejidad — Plano Cartesiano</div>
+                    <div class="graph-formula" id="formula-display">f(n) = n · log₂(n)</div>
+                </div>
+                <div class="graph-canvas-wrap">
+                    <canvas id="complexity-canvas"></canvas>
+                </div>
+                <div class="graph-legend">
+                    <div class="legend-item" data-algo="merge">
+                        <span class="legend-dot" style="background: #8b5cf6;"></span>
+                        Merge Sort — n log n
+                    </div>
+                    <div class="legend-item" data-algo="quick">
+                        <span class="legend-dot" style="background: #22d3ee;"></span>
+                        Quick Sort — n log n
+                    </div>
+                    <div class="legend-item" data-algo="bubble">
+                        <span class="legend-dot" style="background: #f43f5e;"></span>
+                        Bubble Sort — n²
+                    </div>
+                    <div class="legend-item" data-algo="binary">
+                        <span class="legend-dot" style="background: #34d399;"></span>
+                        Binary Search — log n
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Módulo D: Código -->
+        <!-- ═══════ MODULE D: Código C++ ═══════ -->
         <section id="module-d" class="module-section">
             <div class="module-header">
-                <h2>Análisis de Lenguaje (C++)</h2>
-                <p>Observa la ejecución del código C++ sincronizada con la simulación. Enciende la simulación en el <b>Módulo B</b> y ven a esta pestaña.</p>
+                <h2>Código C++ en Vivo</h2>
+                <p>Observa la ejecución del código C++ sincronizada con la simulación. Inicia la simulación en <b>Simulación</b> y ven a esta pestaña.</p>
             </div>
             
-            <div class="code-viewer-container" style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+            <div class="code-layout">
                 <!-- Panel izquierdo: Estado de las variables -->
-                <div class="variables-panel" style="flex: 1; min-width: 300px; background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Estado en Memoria</h3>
-                    <div id="var-state" style="font-family: var(--font-mono); font-size: 1rem; line-height: 1.8;">
-                        <div><span style="color: var(--text-muted);">Acción:</span> <strong id="lbl-step-type" style="color: #eab308;">Esperando inicio...</strong></div>
-                        <br>
-                        <div><span style="color: var(--primary);">idx1 (i):</span> <span id="lbl-idx1">-</span></div>
-                        <div><span style="color: var(--primary);">idx2 (j):</span> <span id="lbl-idx2">-</span></div>
-                        <br>
-                        <div><span style="color: var(--success);">val1:</span> <span id="lbl-val1">-</span></div>
-                        <div><span style="color: var(--success);">val2:</span> <span id="lbl-val2">-</span></div>
-                        <br>
-                        <div><span style="color: var(--text-muted);">Línea Ejecutada:</span> <span id="lbl-line" style="color: #38bdf8;">-</span></div>
+                <div class="variables-panel">
+                    <h3>Estado en Memoria</h3>
+                    <div id="var-state">
+                        <div class="var-row">
+                            <span class="var-name">Acción:</span>
+                            <span class="var-value" id="lbl-step-type" style="color: var(--accent-amber);">Esperando inicio...</span>
+                        </div>
+                        <div class="var-row" style="margin-top: 0.75rem;">
+                            <span class="var-name" style="color: var(--accent-violet);">idx1 (i):</span>
+                            <span class="var-value" id="lbl-idx1">—</span>
+                        </div>
+                        <div class="var-row">
+                            <span class="var-name" style="color: var(--accent-violet);">idx2 (j):</span>
+                            <span class="var-value" id="lbl-idx2">—</span>
+                        </div>
+                        <div class="var-row" style="margin-top: 0.75rem;">
+                            <span class="var-name" style="color: var(--accent-emerald);">val1:</span>
+                            <span class="var-value" id="lbl-val1">—</span>
+                        </div>
+                        <div class="var-row">
+                            <span class="var-name" style="color: var(--accent-emerald);">val2:</span>
+                            <span class="var-value" id="lbl-val2">—</span>
+                        </div>
+                        <div class="var-row" style="margin-top: 0.75rem;">
+                            <span class="var-name">Línea:</span>
+                            <span class="var-value" id="lbl-line" style="color: var(--accent-cyan);">—</span>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Panel derecho: Código C++ -->
-                <div class="code-panel" style="flex: 2; min-width: 500px; background: #1e1e1e; border-radius: var(--radius); border: 1px solid #333; overflow: hidden;">
-                    <div style="background: #2d2d2d; padding: 8px 15px; font-family: var(--font-mono); font-size: 0.8rem; color: #888;">algorithms.cpp</div>
-                    <div style="padding: 1.5rem; overflow-x: auto; max-height: 500px; overflow-y: auto;">
-                        <pre style="margin: 0; font-family: var(--font-mono); font-size: 0.95rem; line-height: 1.6;" id="cpp-code-block"></pre>
+                <div class="code-panel">
+                    <div class="code-header">
+                        <span class="dot" style="background: #f43f5e;"></span>
+                        <span class="dot" style="background: #fbbf24;"></span>
+                        <span class="dot" style="background: #34d399;"></span>
+                        <span style="margin-left: 8px;">algorithms.cpp</span>
+                    </div>
+                    <div class="code-body">
+                        <pre id="cpp-code-block"></pre>
                     </div>
                 </div>
             </div>
@@ -197,11 +270,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
-    <script src="js/algorithms_js.js?v=4"></script>
-    <script src="js/app.js?v=4"></script>
-    <script src="js/db.js?v=4"></script>
-    <script src="js/moduleA.js?v=4"></script>
-    <script src="js/anim.js?v=4"></script>
-    <script src="js/code_view.js?v=4"></script>
+    <script src="js/algorithms_js.js?v=5"></script>
+    <script src="js/wasm_bridge.js?v=5"></script>
+    <script src="js/app.js?v=5"></script>
+    <script src="js/db.js?v=5"></script>
+    <script src="js/moduleA.js?v=5"></script>
+    <script src="js/anim.js?v=5"></script>
+    <script src="js/code_view.js?v=5"></script>
+    <script src="js/complexity_graph.js?v=5"></script>
 </body>
 </html>

@@ -1,14 +1,17 @@
+/**
+ * algorithms_js.js — Pure JavaScript implementations of all 4 algorithms
+ * Used as the PRIMARY engine (or fallback if WASM is unavailable).
+ * All algorithms produce step traces compatible with the animation system.
+ */
 const AlgorithmsEngine = {
     traces: [],
 
     recordStep: function(type, idx1, idx2, val1, val2, lineId) {
-        this.traces.push({
-            type, idx1, idx2, val1, val2, lineId
-        });
+        this.traces.push({ type, idx1, idx2, val1, val2, lineId });
     },
 
     // ---------------------------------------------------------
-    // MERGE SORT (JS Equivalent of C++)
+    // MERGE SORT
     // ---------------------------------------------------------
     merge: function(arr, left, mid, right) {
         let n1 = mid - left + 1;
@@ -53,9 +56,7 @@ const AlgorithmsEngine = {
 
     mergeSortInternal: function(arr, left, right) {
         this.recordStep(0, left, right, -1, -1, 1);
-        if (left >= right) {
-            return;
-        }
+        if (left >= right) return;
         
         let mid = Math.floor(left + (right - left) / 2);
         this.recordStep(0, mid, -1, -1, -1, 4);
@@ -66,7 +67,7 @@ const AlgorithmsEngine = {
     },
 
     // ---------------------------------------------------------
-    // QUICK SORT (JS Equivalent of C++)
+    // QUICK SORT
     // ---------------------------------------------------------
     swap: function(arr, i, j) {
         let t = arr[i];
@@ -106,38 +107,37 @@ const AlgorithmsEngine = {
     },
 
     // ---------------------------------------------------------
-    // BUBBLE SORT
+    // BUBBLE SORT (C++ equivalent)
     // ---------------------------------------------------------
     bubbleSortInternal: function(arr, n) {
-        this.recordStep(0, 0, n, -1, -1, 55); // Init
-        let i, j;
-        for (i = 0; i < n - 1; i++) {
+        this.recordStep(0, 0, n, -1, -1, 55);
+        for (let i = 0; i < n - 1; i++) {
             this.recordStep(0, i, -1, -1, -1, 57);
-            for (j = 0; j < n - i - 1; j++) {
-                this.recordStep(1, j, j + 1, arr[j], arr[j+1], 59); // Compare
+            for (let j = 0; j < n - i - 1; j++) {
+                this.recordStep(1, j, j + 1, arr[j], arr[j+1], 59);
                 if (arr[j] > arr[j + 1]) {
                     this.swap(arr, j, j + 1);
-                    this.recordStep(2, j, j + 1, arr[j], arr[j+1], 61); // Swap
+                    this.recordStep(2, j, j + 1, arr[j], arr[j+1], 61);
                 }
             }
         }
     },
 
     // ---------------------------------------------------------
-    // BINARY SEARCH
+    // BINARY SEARCH (C++ equivalent)
     // ---------------------------------------------------------
     binarySearchInternal: function(arr, target) {
-        this.recordStep(0, 0, arr.length, -1, -1, 70); // Init
+        this.recordStep(0, 0, arr.length - 1, -1, -1, 70);
         let left = 0;
         let right = arr.length - 1;
 
         while (left <= right) {
             let mid = Math.floor(left + (right - left) / 2);
-            this.recordStep(4, mid, left, right, -1, 74); // Pivot is mid, passing left/right
+            this.recordStep(4, mid, left, right, -1, 74);
 
             this.recordStep(1, mid, -1, arr[mid], target, 76);
             if (arr[mid] === target) {
-                this.recordStep(5, mid, -1, -1, -1, 78); // Found
+                this.recordStep(5, mid, -1, -1, -1, 78);
                 return mid;
             }
 
@@ -151,7 +151,7 @@ const AlgorithmsEngine = {
             }
         }
         
-        this.recordStep(6, -1, -1, -1, -1, 91); // Not found
+        this.recordStep(6, -1, -1, -1, -1, 91);
         return -1;
     },
 
@@ -159,9 +159,8 @@ const AlgorithmsEngine = {
     // MAIN ENTRY POINT
     // ---------------------------------------------------------
     sortAndGetTraces: function(array, algorithm, targetVal) {
-        this.traces = []; // clear traces
+        this.traces = [];
         
-        // Clonar arreglo para no modificar el original antes de tiempo
         let workingArray = [...array];
 
         if (algorithm === 'merge') {
@@ -174,14 +173,12 @@ const AlgorithmsEngine = {
             // Binary search requires a sorted array
             workingArray.sort((a, b) => a - b);
             
-            // Si el target no es válido, escoge uno al azar del arreglo
             if (targetVal === undefined || isNaN(targetVal)) {
                 targetVal = workingArray[Math.floor(Math.random() * workingArray.length)];
             }
             
             this.binarySearchInternal(workingArray, targetVal);
             
-            // Retorna también el target para la UI
             return {
                 sortedArray: workingArray,
                 traces: [...this.traces],

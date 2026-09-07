@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tr.innerHTML = `
                 <td>#${p.id}</td>
                 <td>${p.name}</td>
-                <td><span style="background-color: var(--bg-hover); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">${p.category}</span></td>
+                <td><span class="category-badge">${p.category}</span></td>
                 <td>$${p.price.toFixed(2)}</td>
             `;
             tbody.appendChild(tr);

@@ -1,3 +1,7 @@
+/**
+ * code_view.js — C++ Code Viewer with live step highlighting
+ * Listens to global 'algo-changed' and 'algo-step' events.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const lblStepType = document.getElementById('lbl-step-type');
     const lblIdx1 = document.getElementById('lbl-idx1');
@@ -7,143 +11,178 @@ document.addEventListener('DOMContentLoaded', () => {
     const lblLine = document.getElementById('lbl-line');
     const codeBlock = document.getElementById('cpp-code-block');
 
+    // ─── C++ CODE REPRESENTATIONS ────────────────────────
     const ALGO_CODES = {
         'merge': [
-            "void mergeSort(float arr[], int left, int right) {", // 0 (ID 1)
-            "    if (left >= right) return;",                     // 1 (ID 2)
-            "    int mid = left + (right - left) / 2;",           // 2 (ID 4)
-            "    mergeSort(arr, left, mid);",                     // 3 (ID 5)
-            "    mergeSort(arr, mid + 1, right);",                // 4 (ID 6)
-            "    merge(arr, left, mid, right);",                  // 5 (ID 7)
-            "}",                                                  // 6
-            "",                                                   // 7
-            "void merge(...) {",                                  // 8 (ID 10)
-            "    while (i < n1 && j < n2) {",                     // 9 
-            "        if (L[i] <= R[j]) {",                        // 10 (ID 11)
-            "            arr[k] = L[i];",                         // 11 
-            "            i++;",                                   // 12
-            "        } else {",                                   // 13 (ID 13)
-            "            arr[k] = R[j];",                         // 14
-            "            j++;",                                   // 15
-            "        }",                                          // 16
-            "        k++;",                                       // 17
-            "    }",                                              // 18
-            "    // ... copiar restantes (ID 17, 21) ...",        // 19
-            "}"                                                   // 20
+            "void mergeSort(float arr[], int left, int right) {",
+            "    if (left >= right) return;",
+            "",
+            "    int mid = left + (right - left) / 2;",
+            "    mergeSort(arr, left, mid);",
+            "    mergeSort(arr, mid + 1, right);",
+            "    merge(arr, left, mid, right);",
+            "}",
+            "",
+            "void merge(float arr[], int left, int mid, int right) {",
+            "    // ... crear arrays temporales L[], R[]",
+            "    while (i < n1 && j < n2) {",
+            "        if (L[i] <= R[j]) {",
+            "            arr[k] = L[i]; i++;",
+            "        } else {",
+            "            arr[k] = R[j]; j++;",
+            "        }",
+            "        k++;",
+            "    }",
+            "    // copiar restantes de L[] y R[]",
+            "}"
         ],
         'quick': [
-            "int partition(float arr[], int low, int high) {",    // 0
-            "    float pivot = arr[high];",                       // 1 (ID 31)
-            "    int i = (low - 1);",                             // 2
-            "    for (int j = low; j <= high - 1; j++) {",        // 3 (ID 34)
-            "        if (arr[j] < pivot) {",                      // 4
-            "            i++;",                                   // 5
-            "            swap(&arr[i], &arr[j]);",                // 6 (ID 36)
-            "        }",                                          // 7
-            "    }",                                              // 8
-            "    swap(&arr[i + 1], &arr[high]);",                 // 9 (ID 40)
-            "    return (i + 1);",                                // 10
-            "}",                                                  // 11
-            "",                                                   // 12
-            "void quickSort(float arr[], int low, int high) {",   // 13 (ID 44)
-            "    if (low < high) {",                              // 14
-            "        int pi = partition(arr, low, high);",        // 15 (ID 47)
-            "        quickSort(arr, low, pi - 1);",               // 16 (ID 48)
-            "        quickSort(arr, pi + 1, high);",              // 17 (ID 49)
-            "    }",                                              // 18
-            "}"                                                   // 19
+            "int partition(float arr[], int low, int high) {",
+            "    float pivot = arr[high];",
+            "    int i = (low - 1);",
+            "",
+            "    for (int j = low; j <= high - 1; j++) {",
+            "        if (arr[j] < pivot) {",
+            "            i++;",
+            "            swap(&arr[i], &arr[j]);",
+            "        }",
+            "    }",
+            "    swap(&arr[i + 1], &arr[high]);",
+            "    return (i + 1);",
+            "}",
+            "",
+            "void quickSort(float arr[], int low, int high) {",
+            "    if (low < high) {",
+            "        int pi = partition(arr, low, high);",
+            "        quickSort(arr, low, pi - 1);",
+            "        quickSort(arr, pi + 1, high);",
+            "    }",
+            "}"
         ],
         'bubble': [
-            "void bubbleSort(float arr[], int n) {",              // 0 (ID 55)
-            "    int i, j;",                                      // 1
-            "    for (i = 0; i < n - 1; i++) {",                  // 2 (ID 57)
-            "        for (j = 0; j < n - i - 1; j++) {",          // 3 (ID 59)
-            "            if (arr[j] > arr[j + 1]) {",             // 4
-            "                swap(&arr[j], &arr[j + 1]);",        // 5 (ID 61)
-            "            }",                                      // 6
-            "        }",                                          // 7
-            "    }",                                              // 8
-            "}"                                                   // 9
+            "void bubbleSort(float arr[], int n) {",
+            "    int i, j;",
+            "    for (i = 0; i < n - 1; i++) {",
+            "        for (j = 0; j < n - i - 1; j++) {",
+            "            if (arr[j] > arr[j + 1]) {",
+            "                swap(&arr[j], &arr[j + 1]);",
+            "            }",
+            "        }",
+            "    }",
+            "}"
         ],
         'binary': [
-            "int binarySearch(float arr[], int target) {",        // 0 (ID 70)
-            "    int left = 0;",                                  // 1
-            "    int right = n - 1;",                             // 2
-            "    while (left <= right) {",                        // 3 (ID 74)
-            "        int mid = left + (right - left) / 2;",       // 4
-            "        if (arr[mid] == target)",                    // 5 (ID 76)
-            "            return mid;",                            // 6 (ID 78)
-            "        if (arr[mid] < target)",                     // 7 (ID 81)
-            "            left = mid + 1;",                        // 8 (ID 83)
-            "        else",                                       // 9
-            "            right = mid - 1;",                       // 10 (ID 86)
-            "    }",                                              // 11
-            "    return -1;",                                     // 12 (ID 91)
-            "}"                                                   // 13
+            "int binarySearch(float arr[], int n, float target) {",
+            "    int left = 0;",
+            "    int right = n - 1;",
+            "",
+            "    while (left <= right) {",
+            "        int mid = left + (right - left) / 2;",
+            "",
+            "        if (arr[mid] == target)",
+            "            return mid;  // Encontrado",
+            "",
+            "        if (arr[mid] < target)",
+            "            left = mid + 1;",
+            "        else",
+            "            right = mid - 1;",
+            "    }",
+            "",
+            "    return -1;  // No encontrado",
+            "}"
         ]
     };
 
+    // ─── LINE ID → VISUAL INDEX MAPPING ──────────────────
     const mapLineIdToVisualIndex = {
-        1: 0, 2: 1, 4: 2, 5: 3, 6: 4, 7: 5, 10: 8, 11: 10, 13: 13, 17: 19, 21: 19, // Merge
-        31: 1, 34: 3, 36: 6, 40: 9, 44: 13, 47: 15, 48: 16, 49: 17,               // Quick
-        55: 0, 57: 2, 59: 3, 61: 5,                                               // Bubble
-        70: 0, 74: 3, 76: 5, 78: 6, 81: 7, 83: 8, 86: 10, 91: 12                  // Binary
+        // Merge Sort
+        1: 0, 2: 1, 4: 3, 5: 4, 6: 5, 7: 6,
+        10: 11, 11: 12, 13: 14, 17: 19, 21: 19,
+        // Quick Sort
+        31: 1, 34: 4, 36: 7, 40: 10, 44: 14, 47: 16, 48: 17, 49: 18,
+        // Bubble Sort
+        55: 0, 57: 2, 59: 3, 61: 5,
+        // Binary Search
+        70: 0, 74: 5, 76: 7, 78: 8, 81: 10, 83: 11, 86: 13, 91: 16
     };
 
     let currentAlgo = 'merge';
 
+    // ─── RENDER CODE ─────────────────────────────────────
     function renderCode(highlightVisualIndex = -1) {
         const codeLines = ALGO_CODES[currentAlgo];
+        if (!codeLines) return;
+
         let html = '';
         for (let i = 0; i < codeLines.length; i++) {
             const isHighlighted = (i === highlightVisualIndex);
-            
-            const lineStyle = isHighlighted 
-                ? 'background-color: #3f3f46; border-left: 4px solid #38bdf8; display: block; padding-left: 10px; color: #ffffff;' 
-                : 'display: block; padding-left: 14px; color: #d4d4d4;';
-                
-            const lineNumStyle = 'color: #858585; display: inline-block; width: 30px; user-select: none; border-right: 1px solid #444; margin-right: 10px; text-align: right; padding-right: 5px;';
-                
-            html += `<span style="${lineStyle}"><span style="${lineNumStyle}">${i + 1}</span>${codeLines[i] || ' '}</span>`;
+            const lineClass = isHighlighted ? 'code-line highlighted' : 'code-line';
+
+            // Escape HTML
+            const escaped = (codeLines[i] || ' ')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            html += `<span class="${lineClass}"><span class="line-num">${i + 1}</span>${escaped}</span>`;
         }
         codeBlock.innerHTML = html;
 
+        // Scroll to highlighted line
         if (highlightVisualIndex !== -1) {
             const scrollContainer = codeBlock.parentElement;
             const lineHeight = 24;
-            scrollContainer.scrollTop = (highlightVisualIndex * lineHeight) - (scrollContainer.clientHeight / 2);
+            const targetScroll = (highlightVisualIndex * lineHeight) - (scrollContainer.clientHeight / 2);
+            scrollContainer.scrollTop = Math.max(0, targetScroll);
         }
     }
 
+    // Initial render
     renderCode();
 
+    // ─── ACTION TYPES ────────────────────────────────────
     const ACTION_TYPES = {
         0: 'Llamada / Salto (Init)',
         1: 'Comparación Lógica (if)',
         2: 'Intercambio (Swap)',
         3: 'Sobrescritura de Valor',
         4: 'Cálculo de Pivote / Mitad',
-        5: 'Encontrado (Target)',
-        6: 'No Encontrado'
+        5: '✅ Encontrado (Target)',
+        6: '❌ No Encontrado'
     };
 
+    // ─── LISTEN TO ALGO STEPS ────────────────────────────
     window.addEventListener('algo-step', (e) => {
         const step = e.detail;
 
-        // Detect algo from lineId ranges roughly to switch view if needed
-        if (step.lineId < 30) currentAlgo = 'merge';
-        else if (step.lineId < 50) currentAlgo = 'quick';
-        else if (step.lineId < 65) currentAlgo = 'bubble';
+        // Detect algorithm from lineId to switch code view
+        if (step.lineId < 30)       currentAlgo = 'merge';
+        else if (step.lineId < 50)  currentAlgo = 'quick';
+        else if (step.lineId < 65)  currentAlgo = 'bubble';
         else if (step.lineId < 100) currentAlgo = 'binary';
 
         lblStepType.textContent = ACTION_TYPES[step.type] || 'Acción Desconocida';
-        lblIdx1.textContent = step.idx1 !== -1 ? step.idx1 : '-';
-        lblIdx2.textContent = step.idx2 !== -1 ? step.idx2 : '-';
-        lblVal1.textContent = step.val1 !== -1 ? step.val1.toFixed(2) : '-';
-        lblVal2.textContent = step.val2 !== -1 ? step.val2.toFixed(2) : '-';
+        lblIdx1.textContent = step.idx1 !== -1 ? step.idx1 : '—';
+        lblIdx2.textContent = step.idx2 !== -1 ? step.idx2 : '—';
+        lblVal1.textContent = step.val1 !== -1 ? step.val1.toFixed(2) : '—';
+        lblVal2.textContent = step.val2 !== -1 ? step.val2.toFixed(2) : '—';
         lblLine.textContent = `Línea ${step.lineId} (C++)`;
 
         const visualIndex = mapLineIdToVisualIndex[step.lineId];
-        renderCode(visualIndex);
+        renderCode(visualIndex !== undefined ? visualIndex : -1);
+    });
+
+    // ─── LISTEN TO GLOBAL ALGO CHANGE ────────────────────
+    window.addEventListener('algo-changed', (e) => {
+        currentAlgo = e.detail.algorithm;
+        renderCode(); // Re-render with new algorithm code
+        
+        // Reset variables display
+        lblStepType.textContent = 'Esperando inicio...';
+        lblIdx1.textContent = '—';
+        lblIdx2.textContent = '—';
+        lblVal1.textContent = '—';
+        lblVal2.textContent = '—';
+        lblLine.textContent = '—';
     });
 });
