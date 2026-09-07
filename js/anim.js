@@ -122,9 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function getNormalColor(index, total) {
-        const hue = 260 + (index / total) * 100;
+        // Neon light blue/cyan gradient
+        const hue = 190 + (index / total) * 20; 
         const color = new THREE.Color();
-        color.setHSL(hue / 360, 0.85, 0.55);
+        color.setHSL(hue / 360, 0.9, 0.6);
         return color;
     }
 
@@ -132,9 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (colorKey === 'normal') {
             const col = getNormalColor(index, total);
             return new THREE.MeshPhongMaterial({
-                color: col, emissive: col.clone().multiplyScalar(0.2),
-                shininess: 100, specular: new THREE.Color(0xffffff),
-                transparent: true, opacity: 0.82, depthWrite: false
+                color: col, emissive: col.clone().multiplyScalar(0.4),
+                shininess: 150, specular: new THREE.Color(0xffffff),
+                transparent: true, opacity: 0.9, depthWrite: false
             });
         }
         const c = STATE_COLORS[colorKey];
@@ -184,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxVal = Math.max(...array);
         const totalWidth = 70;
         const barW = totalWidth / n;
-        const gap = barW * 0.15;
+        const gap = barW * 0.4; // Aumentado para mejor separación de bloques
         const actualW = barW - gap;
         const startX = -totalWidth / 2;
 

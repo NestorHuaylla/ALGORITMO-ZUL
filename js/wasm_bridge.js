@@ -132,7 +132,10 @@ window.WasmBridge = WasmBridge;
 
 // Initialize WASM automatically, fall back to JS silently
 function initWasm() {
-    WasmBridge.init().catch(e => {
+    WasmBridge.init().then(() => {
+        // Override the JavaScript fallback with the blazing fast WASM engine
+        window.AlgorithmsEngine = WasmBridge;
+    }).catch(e => {
         console.warn("WASM no disponible, usando motor JavaScript como fallback:", e.message);
     });
 }
