@@ -58,6 +58,13 @@ const WasmBridge = {
         });
     },
 
+    getBuffer: function() {
+        if (this.module.wasmMemory) return this.module.wasmMemory.buffer;
+        if (this.module.HEAP8) return this.module.HEAP8.buffer;
+        if (this.module.asm && this.module.asm.memory) return this.module.asm.memory.buffer;
+        throw new Error("No se pudo acceder a la memoria de WebAssembly.");
+    },
+
     // Send array to C++, run algorithm, and return traces
     sortAndGetTraces: function(array, algorithm, targetVal) {
         if (!this.module || !this.loaded) {
@@ -69,8 +76,10 @@ const WasmBridge = {
         // Allocate memory in WASM
         const arrayPtr = this.funcs.allocate_array(size);
 
+        const buffer = this.getBuffer();
+
         // Write values to WASM memory
-        const wasmArray = new Float32Array(this.module.HEAPF32.buffer, arrayPtr, size);
+        const wasmArray = new Float32Array(buffer, arrayPtr, size);
         for (let i = 0; i < size; i++) {
             wasmArray[i] = array[i];
         }
@@ -88,7 +97,7 @@ const WasmBridge = {
         }
 
         // Read sorted array
-        const sortedArray = new Float32Array(this.module.HEAPF32.buffer, arrayPtr, size);
+        const sortedArray = new Float32Array(this.getBuffer(), arrayPtr, size);
         const jsSortedArray = Array.from(sortedArray);
 
         // Read traces
@@ -98,16 +107,20 @@ const WasmBridge = {
         const traces = [];
         const INT32_SIZE = 4;
         
+        const currentBuffer = this.getBuffer();
+        const heap32 = new Int32Array(currentBuffer);
+        const heapF32 = new Float32Array(currentBuffer);
+
         for (let i = 0; i < traceSize; i++) {
             const baseIndex = (tracePtr / INT32_SIZE) + (i * 6);
             
             traces.push({
-                type: this.module.HEAP32[baseIndex + 0],
-                idx1: this.module.HEAP32[baseIndex + 1],
-                idx2: this.module.HEAP32[baseIndex + 2],
-                val1: this.module.HEAPF32[baseIndex + 3],
-                val2: this.module.HEAPF32[baseIndex + 4],
-                lineId: this.module.HEAP32[baseIndex + 5]
+                type: heap32[baseIndex + 0],
+                idx1: heap32[baseIndex + 1],
+                idx2: heap32[baseIndex + 2],
+                val1: heapF32[baseIndex + 3],
+                val2: heapF32[baseIndex + 4],
+                lineId: heap32[baseIndex + 5]
             });
         }
 
