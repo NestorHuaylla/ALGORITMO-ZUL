@@ -321,14 +321,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── EVENTS ──────────────────────────────────────────
     window.addEventListener('algo-changed', (e) => {
         activeAlgo = e.detail.algorithm;
+        
+        const statsN = document.getElementById('stats-n');
+        const statsTime = document.getElementById('stats-time');
+        if (statsN) statsN.textContent = '—';
+        if (statsTime) statsTime.textContent = '— ms';
+
         updateFormula();
         animateCurves();
     });
 
     window.addEventListener('sim-loaded', (e) => {
         // Add or update the point for the given N and algorithm
-        const { algorithm, n, steps } = e.detail;
+        const { algorithm, n, steps, execTime } = e.detail;
         
+        const statsN = document.getElementById('stats-n');
+        const statsTime = document.getElementById('stats-time');
+        if (statsN) statsN.textContent = n.toLocaleString();
+        if (statsTime && execTime !== undefined) statsTime.textContent = execTime + ' ms';
+
         // Remove existing point for this algorithm and n (to update it)
         simPoints = simPoints.filter(p => !(p.algorithm === algorithm && p.n === n));
         

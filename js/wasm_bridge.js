@@ -23,7 +23,7 @@ const WasmBridge = {
     init: async function() {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'wasm/algorithms.js';
+            script.src = 'wasm/algorithms.js?t=' + new Date().getTime();
             script.onload = () => {
                 if (typeof createAlgoModule === 'undefined') {
                     console.warn('WASM module function not found. Falling back to JS engine.');

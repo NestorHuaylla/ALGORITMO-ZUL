@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="description" content="Visualizador interactivo de algoritmos de ordenamiento y búsqueda. Simulación 3D, análisis de complejidad y código C++ en vivo.">
     <title>AlgoManager — Visualizador de Algoritmos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=5">
-    <link rel="stylesheet" href="css/modules.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/modules.css?v=6">
 </head>
 <body>
     <!-- ═══════ HEADER ═══════ -->
@@ -136,6 +139,17 @@
             <div class="module-header">
                 <h2>Análisis de Complejidad</h2>
                 <p>Compara teóricamente y en la práctica el rendimiento de los algoritmos.</p>
+            </div>
+            
+            <div class="stats-panel" style="margin-bottom: 2rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; gap: 3rem; align-items: center;">
+                <div class="stat-item">
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Datos Simulados (N)</div>
+                    <div id="stats-n" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">—</div>
+                </div>
+                <div class="stat-item">
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Tiempo de Ejecución</div>
+                    <div id="stats-time" style="font-size: 1.5rem; font-weight: 700; color: var(--accent-violet);">— ms</div>
+                </div>
             </div>
             
             <div class="complexity-grid">
@@ -266,13 +280,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
-    <script src="js/algorithms_js.js?v=5"></script>
-    <script src="js/wasm_bridge.js?v=5"></script>
-    <script src="js/app.js?v=5"></script>
-    <script src="js/db.js?v=5"></script>
-    <script src="js/moduleA.js?v=5"></script>
-    <script src="js/anim.js?v=5"></script>
-    <script src="js/code_view.js?v=5"></script>
-    <script src="js/complexity_graph.js?v=5"></script>
+    <script src="js/algorithms_js.js?v=6"></script>
+    <script src="js/wasm_bridge.js?v=6"></script>
+    <script src="js/app.js?v=6"></script>
+    <script src="js/db.js?v=6"></script>
+    <script src="js/moduleA.js?v=6"></script>
+    <script src="js/anim.js?v=6"></script>
+    <script src="js/code_view.js?v=6"></script>
+    <script src="js/complexity_graph.js?v=6"></script>
 </body>
 </html>

@@ -237,7 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const userTarget = parseFloat(inputTarget.value);
+            
+            const startTime = performance.now();
             const result = window.AlgorithmsEngine.sortAndGetTraces(rawPrices, algo, userTarget);
+            const endTime = performance.now();
+            const execTime = (endTime - startTime).toFixed(3);
 
             traces = result.traces;
             currentTarget = result.target;
@@ -277,7 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 detail: {
                     algorithm: algo,
                     n: array.length,
-                    steps: traces.length
+                    steps: traces.length,
+                    execTime: execTime
                 }
             }));
 
