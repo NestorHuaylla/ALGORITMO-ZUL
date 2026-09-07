@@ -3,6 +3,8 @@
  * Visualizes sorting/searching algorithms with animated 3D bars.
  * Listens to global 'algo-changed' events for algorithm selection.
  */
+"use strict";
+
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('canvas-container');
     const btnLoad = document.getElementById('btn-load-sim');
@@ -16,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressFill = document.getElementById('sim-progress-fill');
 
     let array = [];
+    let originalArray = []; // Keep original for replay
     let traces = [];
     let currentStep = 0;
     let isPlaying = false;
@@ -24,13 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTarget = null;
     let currentSearchBounds = null;
 
-    // Get current algorithm from global state
     function getCurrentAlgo() {
         return window.currentAlgorithm || 'merge';
     }
 
     // =====================================================
-    //  THREE.JS SETUP — Premium Visual Configuration
+    //  THREE.JS SETUP
     // =====================================================
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x09090b);
@@ -63,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── LIGHTING ─────────────────────────────────────────
     scene.add(new THREE.AmbientLight(0x18181b, 2.0));
 
-    // Key light
     const keyLight = new THREE.DirectionalLight(0xfafafa, 2.0);
     keyLight.position.set(30, 60, 30);
     keyLight.castShadow = true;
@@ -77,17 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     keyLight.shadow.bias = -0.0005;
     scene.add(keyLight);
 
-    // Fill light (cool)
     const fillLight = new THREE.DirectionalLight(0x22d3ee, 0.6);
     fillLight.position.set(-40, 30, -20);
     scene.add(fillLight);
 
-    // Rim light
     const rimLight = new THREE.DirectionalLight(0x8b5cf6, 0.8);
     rimLight.position.set(0, 20, -60);
     scene.add(rimLight);
 
-    // Neon point lights
     const violetPoint = new THREE.PointLight(0x8b5cf6, 2.5, 80);
     violetPoint.position.set(-35, 15, 10);
     scene.add(violetPoint);
@@ -98,11 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ─── FLOOR ─────────────────────────────────────────────
     const floorGeo = new THREE.PlaneGeometry(200, 200, 1, 1);
-    const floorMat = new THREE.MeshStandardMaterial({
-        color: 0x0a0a0e,
-        roughness: 0.95,
-        metalness: 0.0
-    });
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0e, roughness: 0.95, metalness: 0.0 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
@@ -128,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function getNormalColor(index, total) {
-        const hue = 260 + (index / total) * 100; // violet → cyan range
+        const hue = 260 + (index / total) * 100;
         const color = new THREE.Color();
         color.setHSL(hue / 360, 0.85, 0.55);
         return color;
@@ -138,28 +132,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (colorKey === 'normal') {
             const col = getNormalColor(index, total);
             return new THREE.MeshPhongMaterial({
-                color:       col,
-                emissive:    col.clone().multiplyScalar(0.2),
-                shininess:   100,
-                specular:    new THREE.Color(0xffffff),
-                transparent: true,
-                opacity:     0.82,
-                depthWrite:  false
+                color: col, emissive: col.clone().multiplyScalar(0.2),
+                shininess: 100, specular: new THREE.Color(0xffffff),
+                transparent: true, opacity: 0.82, depthWrite: false
             });
         }
         const c = STATE_COLORS[colorKey];
         return new THREE.MeshPhongMaterial({
-            color:       c.hex,
-            emissive:    c.emissive,
-            shininess:   130,
-            specular:    0xffffff,
-            transparent: true,
-            opacity:     c.opacity,
-            depthWrite:  false
+            color: c.hex, emissive: c.emissive,
+            shininess: 130, specular: 0xffffff,
+            transparent: true, opacity: c.opacity, depthWrite: false
         });
     }
 
-    // ─── RESIZE OBSERVER ──────────────────────────────────
+    // ─── RESIZE ───────────────────────────────────────────
     const ro = new ResizeObserver(entries => {
         for (const e of entries) {
             const w = e.contentRect.width;
@@ -192,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             c.geometry.dispose();
             c.material.dispose();
         }
-
         if (!array.length) return;
 
         const n = array.length;
@@ -216,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const geo = new THREE.BoxGeometry(actualW, h, actualW);
             const mat = makeMaterial(colorKey, i, n);
-
             const mesh = new THREE.Mesh(geo, mat);
             mesh.castShadow = true;
             mesh.receiveShadow = false;
@@ -225,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ─── UPDATE PROGRESS BAR ─────────────────────────────
+    // ─── PROGRESS BAR ────────────────────────────────────
     function updateProgress() {
         if (traces.length === 0) {
             progressBar.classList.remove('active');
@@ -242,18 +226,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const algo = getCurrentAlgo();
 
         const products = await window.appDb.getProductsPaginated(0, count);
-        if (!products.length) { alert('No hay productos en la base de datos. Genera datos primero en la pestaña Datos.'); return; }
+        if (!products.length) {
+            alert('No hay productos en la base de datos. Genera datos primero en la pestaña Datos.');
+            return;
+        }
 
-        array = products.map(p => p.price);
+        // Extract prices as the data to sort/search
+        const rawPrices = products.map(p => p.price);
 
         try {
             const userTarget = parseFloat(inputTarget.value);
-            const result = window.AlgorithmsEngine.sortAndGetTraces(array, algo, userTarget);
+            const result = window.AlgorithmsEngine.sortAndGetTraces(rawPrices, algo, userTarget);
 
-            array = result.sortedArray;
             traces = result.traces;
             currentTarget = result.target;
             if (algo === 'binary' && inputTarget) inputTarget.value = currentTarget;
+
+            // FIX: For sorting algorithms, start with the ORIGINAL unsorted array.
+            // The traces will transform it step by step.
+            // For binary search, start with the sorted array since search operates on sorted data.
+            if (algo === 'binary') {
+                array = [...result.sortedArray];
+                originalArray = [...result.sortedArray];
+            } else {
+                array = [...rawPrices];        // Start from UNSORTED
+                originalArray = [...rawPrices]; // Save for replay
+            }
 
             currentStep = 0;
             isPlaying = false;
@@ -262,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
             drawArray3D();
             updateProgress();
 
-            // Reset camera
             camera.position.set(0, 28, 65);
             controls.target.set(0, 8, 0);
 
@@ -273,6 +270,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const opEl = document.getElementById(`lbl-${algo}-ops`);
             if (opEl) opEl.textContent = traces.length.toLocaleString();
+
+            // Dispatch event so complexity graph can show actual data
+            window.dispatchEvent(new CustomEvent('sim-loaded', {
+                detail: {
+                    algorithm: algo,
+                    n: array.length,
+                    steps: traces.length
+                }
+            }));
 
             btnPlay.disabled = false;
             btnStep.disabled = false;
@@ -286,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ─── LISTEN TO GLOBAL ALGO CHANGE ────────────────────
     window.addEventListener('algo-changed', () => {
-        // Reset simulation state when algorithm changes
         traces = [];
         currentStep = 0;
         isPlaying = false;
@@ -296,10 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPlay.disabled = true;
         btnStep.disabled = true;
         btnPause.disabled = true;
-
         updateProgress();
 
-        // Clear 3D bars if array exists, redraw neutral
         if (array.length) {
             drawArray3D();
         }
@@ -312,13 +315,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const algo = getCurrentAlgo();
 
         if (step.type === 2) {
-            // Swap
+            // Swap — with bounds check
             if (step.idx1 >= 0 && step.idx1 < array.length &&
                 step.idx2 >= 0 && step.idx2 < array.length) {
-                [array[step.idx1], array[step.idx2]] = [array[step.idx2], array[step.idx1]];
+                const tmp = array[step.idx1];
+                array[step.idx1] = array[step.idx2];
+                array[step.idx2] = tmp;
             }
         } else if (step.type === 3) {
-            // Overwrite
+            // Overwrite (Merge Sort)
             if (step.idx1 >= 0 && step.idx1 < array.length) {
                 array[step.idx1] = step.val1;
             }
@@ -364,13 +369,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSearchBounds = null;
                 drawArray3D();
                 updateProgress();
+
+                // Dispatch simulation complete
+                window.dispatchEvent(new CustomEvent('sim-complete', {
+                    detail: {
+                        algorithm: getCurrentAlgo(),
+                        n: array.length,
+                        steps: traces.length
+                    }
+                }));
             }
         }
         if (isPlaying) animationId = requestAnimationFrame(simLoop);
     }
 
     btnPlay.addEventListener('click', () => {
-        if (currentStep >= traces.length) { currentStep = 0; currentSearchBounds = null; }
+        if (currentStep >= traces.length) {
+            // Reset: restore original array for replay
+            currentStep = 0;
+            currentSearchBounds = null;
+            array = [...originalArray];
+            drawArray3D();
+        }
         isPlaying = true;
         btnPlay.disabled = true;
         btnPause.disabled = false;

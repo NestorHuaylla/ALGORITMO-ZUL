@@ -2,6 +2,8 @@
  * wasm_bridge.js — Bridge between JavaScript and C++ WebAssembly
  * Handles memory management, function binding, and trace extraction.
  */
+"use strict";
+
 const WasmBridge = {
     module: null,
     loaded: false,

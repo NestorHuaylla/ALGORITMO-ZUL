@@ -2,6 +2,8 @@
  * complexity_graph.js — Canvas 2D Cartesian plane for algorithm complexity visualization
  * Draws f(n) curves for each algorithm with animation and interactive highlighting.
  */
+"use strict";
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('complexity-canvas');
     if (!canvas) return;
@@ -11,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animId = null;
     let activeAlgo = 'merge';
     let hoveredAlgo = null;
+    let simPoints = []; // Array to store actual simulation data points
 
     // ─── CONFIGURATION ──────────────────────────────────
     const ALGORITHMS = {
@@ -85,7 +88,36 @@ document.addEventListener('DOMContentLoaded', () => {
         drawGrid(plot, maxY, W, H);
         drawAxes(plot, maxY, W, H);
         drawCurves(plot, maxY);
+        drawSimPoints(plot, maxY);
         drawLabels(plot, maxY, W, H);
+    }
+
+    function drawSimPoints(plot, maxY) {
+        for (const pt of simPoints) {
+            const algo = ALGORITHMS[pt.algorithm];
+            if (!algo) continue;
+            
+            const x = mapX(pt.n, plot);
+            const y = mapY(pt.steps, plot, maxY);
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff'; // white core
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = algo.color;
+            ctx.stroke();
+
+            // Glow
+            ctx.shadowColor = algo.color;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = algo.color;
+            ctx.fillText(pt.steps, x + 10, y - 10);
+            ctx.shadowBlur = 0;
+        }
     }
 
     function drawGrid(plot, maxY, W, H) {
@@ -291,6 +323,17 @@ document.addEventListener('DOMContentLoaded', () => {
         activeAlgo = e.detail.algorithm;
         updateFormula();
         animateCurves();
+    });
+
+    window.addEventListener('sim-loaded', (e) => {
+        // Add or update the point for the given N and algorithm
+        const { algorithm, n, steps } = e.detail;
+        
+        // Remove existing point for this algorithm and n (to update it)
+        simPoints = simPoints.filter(p => !(p.algorithm === algorithm && p.n === n));
+        
+        simPoints.push({ algorithm, n, steps });
+        draw(); // Redraw immediately to show the new point
     });
 
     // Legend hover

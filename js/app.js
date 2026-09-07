@@ -2,6 +2,8 @@
  * app.js — Core application logic
  * Handles tab navigation and global algorithm selection with event dispatch.
  */
+"use strict";
+
 document.addEventListener('DOMContentLoaded', () => {
     // ─── TAB NAVIGATION ──────────────────────────────────
     const tabBtns = document.querySelectorAll('.tab-btn');

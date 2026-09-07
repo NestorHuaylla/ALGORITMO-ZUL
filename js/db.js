@@ -1,3 +1,5 @@
+"use strict";
+
 const DB_NAME = 'AlgoStoreDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'products';

@@ -2,6 +2,8 @@
  * code_view.js — C++ Code Viewer with live step highlighting
  * Listens to global 'algo-changed' and 'algo-step' events.
  */
+"use strict";
+
 document.addEventListener('DOMContentLoaded', () => {
     const lblStepType = document.getElementById('lbl-step-type');
     const lblIdx1 = document.getElementById('lbl-idx1');
@@ -147,8 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
         2: 'Intercambio (Swap)',
         3: 'Sobrescritura de Valor',
         4: 'Cálculo de Pivote / Mitad',
-        5: '✅ Encontrado (Target)',
-        6: '❌ No Encontrado'
+        5: 'Encontrado (Target)',
+        6: 'No Encontrado'
     };
 
     // ─── LISTEN TO ALGO STEPS ────────────────────────────

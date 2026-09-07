@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include <emscripten.h>
 
 // Estructura de cada paso para la animación y análisis
@@ -136,21 +137,6 @@ void bubbleSort(float arr[], int n) {
 // ---------------------------------------------------------
 // BINARY SEARCH
 // ---------------------------------------------------------
-// Nota: el arreglo DEBE estar ordenado previamente.
-// Para la simulación, se ordena primero con mergeSort interno
-// y luego se busca.
-void simpleSortForSearch(float arr[], int n) {
-    // Simple insertion sort (no tracing) para preparar datos
-    for (int i = 1; i < n; i++) {
-        float key = arr[i];
-        int j = i - 1;
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];
-            j = j - 1;
-        }
-        arr[j + 1] = key;
-    }
-}
 
 int binarySearch(float arr[], int n, float target) {
     record_step(0, 0, n - 1, -1, -1, 70); // Init
@@ -233,8 +219,8 @@ extern "C" {
     EMSCRIPTEN_KEEPALIVE
     void run_binary_search(float* arr, int size, float target) {
         clear_trace();
-        // Ordenar primero (sin tracing)
-        simpleSortForSearch(arr, size);
+        // Ordenar primero (sin tracing) usando STL
+        std::sort(arr, arr + size);
         // Luego buscar (con tracing)
         binarySearch(arr, size, target);
     }

@@ -3,6 +3,8 @@
  * Used as the PRIMARY engine (or fallback if WASM is unavailable).
  * All algorithms produce step traces compatible with the animation system.
  */
+"use strict";
+
 const AlgorithmsEngine = {
     traces: [],
 
